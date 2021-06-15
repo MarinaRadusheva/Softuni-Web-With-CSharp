@@ -1,4 +1,5 @@
 ﻿using MyWebServer.Server.Http;
+using MyWebServer.Server.Routing;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -12,12 +13,18 @@ namespace MyWebServer.Server
         private readonly IPAddress ipAddress;
         private readonly int port;
         private readonly TcpListener listener;
-        public HttpServer(string ipAddress, int port)
+        public HttpServer(string ipAddress, int port, Action<IRoutingTable> routingTable)
         {
             this.ipAddress = IPAddress.Parse(ipAddress);
 
             this.port = port;
             this.listener = new TcpListener(this.ipAddress, port);
+        }
+        public HttpServer(int port, Action<IRoutingTable> routingTable) : this("127.0.0.1", port, routingTable)
+        {
+        }
+        public HttpServer(Action<IRoutingTable> routingTable) : this(8000, routingTable) 
+        { 
         }
         public async Task Start()
         {
