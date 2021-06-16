@@ -13,12 +13,16 @@ namespace MyWebServer.Server
         private readonly IPAddress ipAddress;
         private readonly int port;
         private readonly TcpListener listener;
-        public HttpServer(string ipAddress, int port, Action<IRoutingTable> routingTable)
+
+        private readonly RoutingTable routingTable;
+        public HttpServer(string ipAddress, int port, Action<IRoutingTable> routingTableConfiguration)
         {
             this.ipAddress = IPAddress.Parse(ipAddress);
 
             this.port = port;
-            this.listener = new TcpListener(this.ipAddress, port);
+            this.listener = new TcpListener(this.ipAddress, this.port);
+            this.routingTable = new RoutingTable();
+            routingTableConfiguration(routingTable);
         }
         public HttpServer(int port, Action<IRoutingTable> routingTable) : this("127.0.0.1", port, routingTable)
         {
@@ -42,30 +46,12 @@ namespace MyWebServer.Server
 
                 Console.WriteLine(requestText);
                 var request = HttpRequest.Parse(requestText);
+                var response = this.routingTable.MatchRequest(request);
 
-                await WriteResponse(networkStream);
+                await WriteResponse(networkStream, response);
                
                 connection.Close();
             }
-            // from Niki's workshop
-            //while (true)
-            //{
-            //    var client = serverListener.AcceptTcpClient();
-            //    var networkStream = client.GetStream();
-            //    byte[] buffer = new byte[1000000];
-            //    var length = networkStream.Read(buffer, 0, buffer.Length);
-            //    string requestString = Encoding.UTF8.GetString(buffer, 0, length);
-            //    Console.WriteLine(requestString);
-
-            //    var responseContent = "Hello from my server!";
-
-            //    var responseContentLength = Encoding.UTF8.GetByteCount(responseContent);
-
-            //    var response = $@"HTTP/1.1 200 OK{NewLine}Content-Length: {responseContentLength}{NewLine}Content-Type: text/html; charset=UTF-8{NewLine}{NewLine}{responseContent}";
-
-            //    var responseBytes = Encoding.UTF8.GetBytes(response);
-            //    await networkStream.WriteAsync(responseBytes);
-            //}
         }
         private async Task<string> ReadRequest(NetworkStream networkStream)
         {
@@ -73,22 +59,18 @@ namespace MyWebServer.Server
             var buffer = new byte[bufferLength];
 
             var requestBuilder = new StringBuilder();
+
             while (networkStream.DataAvailable)
             {
                 var bytesRead = await networkStream.ReadAsync(buffer, 0, bufferLength);
                 requestBuilder.Append(Encoding.UTF8.GetString(buffer, 0, bytesRead));
             }
+
             return requestBuilder.ToString();
         }
-        private async Task WriteResponse(NetworkStream networkStream)
+        private async Task WriteResponse(NetworkStream networkStream, HttpResponse response)
         {
-            var responseContent = "Hello from my server! Ти си машина!";
-
-            var responseContentLength = Encoding.UTF8.GetByteCount(responseContent);
-
-            var response = $@"HTTP/1.1 200 OK{Constants.NewLine}Server: My Web Server{Constants.NewLine}Date: {DateTime.UtcNow.ToString("R")}{Constants.NewLine}Content-Length: {responseContentLength}{Constants.NewLine}Content-Type: text/html; charset=UTF-8{Constants.NewLine}{Constants.NewLine}{responseContent}";
-
-            var responseBytes = Encoding.UTF8.GetBytes(response);
+            var responseBytes = Encoding.UTF8.GetBytes(response.ToString());
 
             await networkStream.WriteAsync(responseBytes);
         }

@@ -12,9 +12,10 @@ namespace MyWebServer
     public class StartUp
     {
         // http://localhost:8000
+        
         public static async Task Main() 
             => await new HttpServer(routingTable => routingTable.MapGet("/", new TextResponse("Hello from Marina's home page"))
-            .MapGet("/Cats", new TextResponse("<h1>Hello from Marina's cats!<h1>", "text/html"))
+            .MapGet("/Cats", new HtmlResponse("<h1>Hello from Marina's cats!<h1>"))
             .MapGet("/Dogs", new TextResponse("Hello from the dogs!")))
             .Start();
 
