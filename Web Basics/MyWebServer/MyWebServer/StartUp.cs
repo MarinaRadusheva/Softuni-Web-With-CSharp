@@ -2,9 +2,7 @@
 using MyWebServer.Server;
 using MyWebServer.Server.Results;
 using System;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
+using MyWebServer.Server.Controllers;
 using System.Threading.Tasks;
 
 namespace MyWebServer
@@ -12,11 +10,12 @@ namespace MyWebServer
     public class StartUp
     {
         // http://localhost:8000
-        
-        public static async Task Main() 
-            => await new HttpServer(routingTable => routingTable.MapGet("/", new TextResponse("Hello from Marina's home page"))
-            .MapGet("/Cats", new HtmlResponse("<h1>Hello from Marina's cats!<h1>"))
-            .MapGet("/Dogs", new TextResponse("Hello from the dogs!")))
+
+        public static async Task Main()
+            => await new HttpServer(routingTable => routingTable
+            .MapGet<HomeController>( "/", c => c.Index())
+            .MapGet<AnimalsController>("/Cats", c => c.Cats())
+            .MapGet<AnimalsController>("/Dogs", c => c.Dogs()))
             .Start();
 
         //while (true)
