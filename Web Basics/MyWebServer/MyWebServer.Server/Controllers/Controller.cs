@@ -1,5 +1,6 @@
 ﻿using MyWebServer.Server.Http;
 using MyWebServer.Server.Results;
+using System.Runtime.CompilerServices;
 
 namespace MyWebServer.Server.Controllers
 {
@@ -10,7 +11,19 @@ namespace MyWebServer.Server.Controllers
             this.Request = request;
         }
         protected HttpRequest Request { get; private set; }
+
         protected HttpResponse Text(string text) => new TextResponse(text);
+
         protected HttpResponse Html(string html) => new HtmlResponse(html);
+
+        protected HttpResponse Redirect(string location) => new RedirectResponse(location);
+
+        protected HttpResponse View([CallerMemberName] string viewName ="") =>new ViewResponse(viewName, this.GetControllerName());
+
+        private string GetControllerName()
+        {
+            return this.GetType().Name.Replace(nameof(Controller), string.Empty);
+        }
+
     }
 }

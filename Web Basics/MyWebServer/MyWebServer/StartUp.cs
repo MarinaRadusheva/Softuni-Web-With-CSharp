@@ -10,12 +10,17 @@ namespace MyWebServer
     public class StartUp
     {
         // http://localhost:8000
+        // http://localhost:8000/Dogs
+        // http://localhost:8000/Bunnies
+        // http://localhost:8000/Turtles
 
         public static async Task Main()
             => await new HttpServer(routingTable => routingTable
             .MapGet<HomeController>( "/", c => c.Index())
             .MapGet<AnimalsController>("/Cats", c => c.Cats())
-            .MapGet<AnimalsController>("/Dogs", c => c.Dogs()))
+            .MapGet<AnimalsController>("/Dogs", c => c.Dogs())
+            .MapGet<AnimalsController>("/Turtles", c=>c.Turtles())
+            .MapGet<AnimalsController>("/Bunnies", c=>c.Bunnies()))
             .Start();
 
         //while (true)
