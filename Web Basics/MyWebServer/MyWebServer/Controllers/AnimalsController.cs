@@ -1,6 +1,7 @@
 ﻿using MyWebServer.Models.Animals;
 using MyWebServer.Server.Controllers;
 using MyWebServer.Server.Http;
+using MyWebServer.Server.Results;
 
 namespace MyWebServer.Controllers
 {

@@ -15,6 +15,7 @@ namespace MyWebServer
         // http://localhost:8000/Turtles
         // http://localhost:8000/Cats
         // http://localhost:8000/Cats/CreateCat
+        // http://localhost:8000/Cats?Name=Pisi&Age=1
 
         public static async Task Main()
             => await new HttpServer(routingTable => routingTable
@@ -23,6 +24,7 @@ namespace MyWebServer
             .MapGet<AnimalsController>("/Dogs", c => c.Dogs())
             .MapGet<AnimalsController>("/Turtles", c => c.Turtles())
             .MapGet<AnimalsController>("/Bunnies", c => c.Bunnies())
+            .MapGet<AccountController>("/Cookies", c => c.ActionWithCookies())
             .MapGet<CatsController>("/Cats/CreateCat", c => c.CreateCat())
             .MapPost<CatsController>("/Cats/Save", c => c.Save()))
             .Start();

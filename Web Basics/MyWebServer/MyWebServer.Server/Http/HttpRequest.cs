@@ -10,7 +10,8 @@ namespace MyWebServer.Server.Http
         public string Path { get; private set; }
         public Dictionary<string, string> Query { get; private set; }
         public Dictionary<string, string> Form { get; private set; }
-        public HttpHeaderCollection Headers { get; private set; }
+        public HttpHeaderCollection Headers { get; set; }
+        public IDictionary<string, HttpCookie> Cookies { get; } = new Dictionary<string, HttpCookie>();
         public string Body { get; private set; }
         public static HttpRequest Parse(string request)
         {

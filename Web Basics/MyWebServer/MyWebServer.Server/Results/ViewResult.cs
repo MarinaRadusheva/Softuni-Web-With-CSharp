@@ -4,11 +4,11 @@ using System.Linq;
 
 namespace MyWebServer.Server.Results
 {
-    public class ViewResponse : HttpResponse
+    public class ViewResult : ActionResult
     {
         private const char PathSeparator = '/';
 
-        public ViewResponse(string viewPath, string controllerName, object model) : base(HttpStatusCode.OK)
+        public ViewResult(HttpResponse response, string viewPath, string controllerName, object model) : base(response)
         {
             this.GetHtml(viewPath, controllerName, model);
         }
