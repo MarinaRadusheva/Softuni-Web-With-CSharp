@@ -6,7 +6,7 @@ namespace MyWebServer.Server.Results
     {
         public RedirectResponse(string location) : base(HttpStatusCode.Found)
         {
-            this.Headers.Add("Location", location);
+            this.Headers.Add(HttpHeader.Location, location);
         }
     }
 }

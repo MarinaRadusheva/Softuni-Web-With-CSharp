@@ -13,14 +13,18 @@ namespace MyWebServer
         // http://localhost:8000/Dogs
         // http://localhost:8000/Bunnies
         // http://localhost:8000/Turtles
+        // http://localhost:8000/Cats
+        // http://localhost:8000/Cats/CreateCat
 
         public static async Task Main()
             => await new HttpServer(routingTable => routingTable
-            .MapGet<HomeController>( "/", c => c.Index())
+            .MapGet<HomeController>("/", c => c.Index())
             .MapGet<AnimalsController>("/Cats", c => c.Cats())
             .MapGet<AnimalsController>("/Dogs", c => c.Dogs())
-            .MapGet<AnimalsController>("/Turtles", c=>c.Turtles())
-            .MapGet<AnimalsController>("/Bunnies", c=>c.Bunnies()))
+            .MapGet<AnimalsController>("/Turtles", c => c.Turtles())
+            .MapGet<AnimalsController>("/Bunnies", c => c.Bunnies())
+            .MapGet<CatsController>("/Cats/CreateCat", c => c.CreateCat())
+            .MapPost<CatsController>("/Cats/Save", c => c.Save()))
             .Start();
 
         //while (true)

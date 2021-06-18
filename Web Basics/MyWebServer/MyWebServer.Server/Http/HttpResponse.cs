@@ -9,8 +9,8 @@ namespace MyWebServer.Server.Http
         public HttpResponse(HttpStatusCode statusCode)
         {
             this.StatusCode = statusCode;
-            this.Headers.Add("Server", "My  Web Server");
-            this.Headers.Add("Date", $"{DateTime.UtcNow.ToString("R")}");
+            this.Headers.Add(HttpHeader.Server, "My  Web Server");
+            this.Headers.Add(HttpHeader.Date, $"{DateTime.UtcNow.ToString("R")}");
         }
         public HttpStatusCode StatusCode { get; protected set; }
         public HttpHeaderCollection Headers { get; } = new HttpHeaderCollection();
@@ -39,8 +39,8 @@ namespace MyWebServer.Server.Http
 
             var contentLength = Encoding.UTF8.GetByteCount(content).ToString();
 
-            this.Headers.Add("Content-Type", contentType);
-            this.Headers.Add("Content-Length", contentLength);
+            this.Headers.Add(HttpHeader.ContentType, contentType);
+            this.Headers.Add(HttpHeader.ContentLength, contentLength);
             this.Content = content;
         }
     }

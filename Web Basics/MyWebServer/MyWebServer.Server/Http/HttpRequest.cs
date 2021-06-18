@@ -9,6 +9,7 @@ namespace MyWebServer.Server.Http
         public HttpMethod Method { get; private set; }
         public string Path { get; private set; }
         public Dictionary<string, string> Query { get; private set; }
+        public Dictionary<string, string> Form { get; private set; }
         public HttpHeaderCollection Headers { get; private set; }
         public string Body { get; private set; }
         public static HttpRequest Parse(string request)
@@ -21,14 +22,26 @@ namespace MyWebServer.Server.Http
             var headerCollection = ParseHttpHeaderCollection(lines.Skip(1));
             var bodyLines = lines.Skip(headerCollection.Count + 2).ToArray();
             var body = string.Join(Constants.NewLine, bodyLines);
+            var form = ParseForm(headerCollection, body);
             return new HttpRequest
             {
                 Method = method,
                 Path = path,
                 Query = query,
                 Headers = headerCollection,
-                Body = body
+                Body = body,
+                Form = form
             };
+        }
+
+        private static Dictionary<string, string> ParseForm(HttpHeaderCollection headerCollection, string body)
+        {
+            var result = new Dictionary<string, string>();
+            if (headerCollection.Contains(HttpHeader.ContentType) && headerCollection[HttpHeader.ContentType].Value==HttpContentType.FormUrlEncoded)
+            {
+                result = ParseQuery(body);
+            }
+            return result;
         }
 
         //  /Cats?name=Pesho&Age=2
