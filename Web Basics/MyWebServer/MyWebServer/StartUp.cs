@@ -16,6 +16,7 @@ namespace MyWebServer
         // http://localhost:8000/Cats
         // http://localhost:8000/Cats/CreateCat
         // http://localhost:8000/Cats?Name=Pisi&Age=1
+        // http://localhost:8000/Cookies
 
         public static async Task Main()
             => await new HttpServer(routingTable => routingTable

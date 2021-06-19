@@ -39,9 +39,14 @@ namespace MyWebServer.Server.Http
             var result = new StringBuilder();
 
             result.AppendLine($"HTTP/1.1 {(int)this.StatusCode} {this.StatusCode}");
+            
             foreach (var header in this.Headers)
             {
                 result.AppendLine(header.ToString());
+            }
+            foreach (var cookie in this.Cookies.Values)
+            {
+                result.AppendLine($"{HttpHeader.SetCookie}: {cookie}");
             }
             if (!string.IsNullOrEmpty(this.Content))
             {

@@ -11,7 +11,7 @@ namespace MyWebServer.Server.Http
         public Dictionary<string, string> Query { get; private set; }
         public Dictionary<string, string> Form { get; private set; }
         public HttpHeaderCollection Headers { get; set; }
-        public IDictionary<string, HttpCookie> Cookies { get; } = new Dictionary<string, HttpCookie>();
+        public IDictionary<string, HttpCookie> Cookies { get; private set; } = new Dictionary<string, HttpCookie>();
         public string Body { get; private set; }
         public static HttpRequest Parse(string request)
         {
@@ -21,6 +21,7 @@ namespace MyWebServer.Server.Http
             var url = startLine[1];
             var (path, query) = ParseUrl(url);
             var headerCollection = ParseHttpHeaderCollection(lines.Skip(1));
+            var cookies = ParseCookies(headerCollection);
             var bodyLines = lines.Skip(headerCollection.Count + 2).ToArray();
             var body = string.Join(Constants.NewLine, bodyLines);
             var form = ParseForm(headerCollection, body);
@@ -30,11 +31,13 @@ namespace MyWebServer.Server.Http
                 Path = path,
                 Query = query,
                 Headers = headerCollection,
+                Cookies = cookies,
                 Body = body,
                 Form = form
             };
         }
 
+       
         private static Dictionary<string, string> ParseForm(HttpHeaderCollection headerCollection, string body)
         {
             var result = new Dictionary<string, string>();
@@ -87,6 +90,24 @@ namespace MyWebServer.Server.Http
 
             }
             return headerCollection;
+        }
+        private static Dictionary<string, HttpCookie> ParseCookies(HttpHeaderCollection headers)
+        {
+            var cookieCollection = new Dictionary<string, HttpCookie>();
+            if (headers.Contains(HttpHeader.Cookie))
+            {
+                var cookieHeader = headers[HttpHeader.Cookie];
+                var allCookies = cookieHeader.Value.Split(";");
+                foreach (var cookie in allCookies)
+                {
+                    var cookieParts = cookie.Split("=");
+                    var cookieName = cookieParts[0].Trim();
+                    var cookieValue = cookieParts[1].Trim();
+                    var newCookie = new HttpCookie(cookieName, cookieValue);
+                    cookieCollection.Add(cookieName,newCookie);
+                }
+            }
+            return cookieCollection;
         }
 
         private static HttpMethod ParseHttpMethod(string method) => method switch
