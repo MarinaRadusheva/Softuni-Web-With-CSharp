@@ -1,5 +1,6 @@
 ﻿using MyWebServer.Server.Controllers;
 using MyWebServer.Server.Http;
+using System;
 
 namespace MyWebServer.Controllers
 {
@@ -10,5 +11,8 @@ namespace MyWebServer.Controllers
         }
 
         public HttpResponse Index() => Text("Hello from Marina's server!");
+
+        public HttpResponse LocalRedirect() => Redirect("/Cats");
+        public HttpResponse Error() => throw new InvalidOperationException("Invalid action!");
     }
 }

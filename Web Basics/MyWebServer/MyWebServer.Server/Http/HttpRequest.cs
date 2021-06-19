@@ -6,13 +6,25 @@ namespace MyWebServer.Server.Http
 {
     public class HttpRequest
     {
+
+        private static Dictionary<string, HttpSession> Sessions = new Dictionary<string, HttpSession>();
+
         public HttpMethod Method { get; private set; }
+
         public string Path { get; private set; }
+
         public Dictionary<string, string> Query { get; private set; }
+
         public Dictionary<string, string> Form { get; private set; }
+
         public HttpHeaderCollection Headers { get; set; }
+
         public IDictionary<string, HttpCookie> Cookies { get; private set; } = new Dictionary<string, HttpCookie>();
+
+        public HttpSession Session { get; private set; }
+
         public string Body { get; private set; }
+
         public static HttpRequest Parse(string request)
         {
             var lines = request.Split(Constants.NewLine);
@@ -22,6 +34,9 @@ namespace MyWebServer.Server.Http
             var (path, query) = ParseUrl(url);
             var headerCollection = ParseHttpHeaderCollection(lines.Skip(1));
             var cookies = ParseCookies(headerCollection);
+
+            var session = GetSession(cookies);
+
             var bodyLines = lines.Skip(headerCollection.Count + 2).ToArray();
             var body = string.Join(Constants.NewLine, bodyLines);
             var form = ParseForm(headerCollection, body);
@@ -32,16 +47,16 @@ namespace MyWebServer.Server.Http
                 Query = query,
                 Headers = headerCollection,
                 Cookies = cookies,
+                Session = session,
                 Body = body,
                 Form = form
             };
         }
 
-       
         private static Dictionary<string, string> ParseForm(HttpHeaderCollection headerCollection, string body)
         {
             var result = new Dictionary<string, string>();
-            if (headerCollection.Contains(HttpHeader.ContentType) && headerCollection[HttpHeader.ContentType].Value==HttpContentType.FormUrlEncoded)
+            if (headerCollection.Contains(HttpHeader.ContentType) && headerCollection[HttpHeader.ContentType].Value == HttpContentType.FormUrlEncoded)
             {
                 result = ParseQuery(body);
             }
@@ -104,11 +119,26 @@ namespace MyWebServer.Server.Http
                     var cookieName = cookieParts[0].Trim();
                     var cookieValue = cookieParts[1].Trim();
                     var newCookie = new HttpCookie(cookieName, cookieValue);
-                    cookieCollection.Add(cookieName,newCookie);
+                    cookieCollection.Add(cookieName, newCookie);
                 }
             }
             return cookieCollection;
         }
+
+        private static HttpSession GetSession(Dictionary<string, HttpCookie> cookies)
+        {
+            var sessionId = cookies.ContainsKey(HttpSession.SessionCookieName) ? cookies[HttpSession.SessionCookieName].Value : Guid.NewGuid().ToString();
+
+            if (!Sessions.ContainsKey(sessionId))
+            {
+                Sessions[sessionId] = new HttpSession(sessionId);
+            }
+
+            return Sessions[sessionId];
+
+        }
+
+
 
         private static HttpMethod ParseHttpMethod(string method) => method switch
         {

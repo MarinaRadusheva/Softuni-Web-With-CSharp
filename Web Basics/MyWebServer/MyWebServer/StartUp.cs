@@ -17,15 +17,20 @@ namespace MyWebServer
         // http://localhost:8000/Cats/CreateCat
         // http://localhost:8000/Cats?Name=Pisi&Age=1
         // http://localhost:8000/Cookies
+        // http://localhost:8000/Session
+        // http://localhost:8000/Error
 
         public static async Task Main()
             => await new HttpServer(routingTable => routingTable
             .MapGet<HomeController>("/", c => c.Index())
+            .MapGet<HomeController>("/ToCats", c => c.LocalRedirect())
+            .MapGet<HomeController>("/Error", c => c.Error())
             .MapGet<AnimalsController>("/Cats", c => c.Cats())
             .MapGet<AnimalsController>("/Dogs", c => c.Dogs())
             .MapGet<AnimalsController>("/Turtles", c => c.Turtles())
             .MapGet<AnimalsController>("/Bunnies", c => c.Bunnies())
             .MapGet<AccountController>("/Cookies", c => c.ActionWithCookies())
+            .MapGet<AccountController>("/Session", c=>c.ActionWithSession())
             .MapGet<CatsController>("/Cats/CreateCat", c => c.CreateCat())
             .MapPost<CatsController>("/Cats/Save", c => c.Save()))
             .Start();
